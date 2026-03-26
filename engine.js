@@ -463,3 +463,30 @@ function recalcAll(s) {
     sensitivity,
   };
 }
+
+// ── Lite Recalc (for optimizer — skips IRR, networth, oppcost, sensitivity) ──
+function recalcLite(s) {
+  const capital = calcCapital(s);
+  const tiers = calcTiers(s, capital.investable);
+  const invested = capital.investable;
+  const baseNav = s.nav_curve[9] || 1;
+  const moic = {};
+  for (const key of ["base", "bull", "bear"]) {
+    const terminal = calcScenarioEV(s, tiers, key);
+    moic[key] = invested > 0 ? terminal / invested : 0;
+  }
+  return { capital, tiers, moic, deals: tiers.totalDeals, invested };
+}
+
+// ── State Accessors (used by app.js and simulator) ──
+function getVal(obj, path) {
+  return path.split(".").reduce(function (o, k) {
+    return o != null ? o[k] : undefined;
+  }, obj);
+}
+function setVal(obj, path, val) {
+  var p = path.split("."),
+    c = obj;
+  for (var i = 0; i < p.length - 1; i++) c = c[p[i]];
+  c[p[p.length - 1]] = val;
+}

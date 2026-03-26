@@ -269,6 +269,133 @@ body {
 .ob-back:hover {
   color: var(--text);
 }
+
+/* Simulator */
+.sim-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+  max-width: 900px;
+  width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+.sim-close-btn {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 20px;
+  cursor: pointer;
+}
+.sim-step {
+  display: none;
+}
+.sim-step.active {
+  display: block;
+}
+.sim-step h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.sim-step h3 {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+.sim-bar {
+  height: 6px;
+  background: var(--bg-input);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+.sim-fill {
+  height: 100%;
+  background: var(--accent);
+  width: 0%;
+  transition: width 0.2s;
+}
+.sim-status {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.sim-live {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 8px 0;
+}
+.sim-lb-box table,
+.sim-results-wrap table {
+  width: 100%;
+  font-size: 0.72rem;
+  border-collapse: collapse;
+}
+.sim-lb-box th,
+.sim-lb-box td,
+.sim-results-wrap th,
+.sim-results-wrap td {
+  padding: 3px 5px;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.sim-lb-box th:first-child,
+.sim-lb-box td:first-child,
+.sim-results-wrap th:first-child,
+.sim-results-wrap td:first-child {
+  text-align: left;
+}
+.sim-lb-box th,
+.sim-results-wrap th {
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+}
+.sim-apply {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 2px 8px;
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+.sim-apply:hover {
+  filter: brightness(1.1);
+}
+.sim-insights {
+  margin: 10px 0;
+}
+.sim-insight {
+  font-size: 0.8rem;
+  color: var(--text);
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+  line-height: 1.5;
+}
+.sim-insight strong {
+  color: var(--accent);
+}
+.sim-results-wrap {
+  overflow-x: auto;
+  margin: 10px 0;
+}
+@media (max-width: 700px) {
+  .sim-live {
+    grid-template-columns: 1fr;
+  }
+}
+
 .scenario-controls {
   display: flex;
   gap: var(--sp-1);

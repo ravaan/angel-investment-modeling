@@ -1011,6 +1011,7 @@
     initDnD();
     initScenarios();
     initOnboarding();
+    if (typeof initSimulator === "function") initSimulator();
     computed = recalcAll(state);
     render();
   }

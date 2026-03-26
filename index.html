@@ -149,10 +149,100 @@
       </div>
     </div>
 
+    <!-- Simulation Overlay -->
+    <div id="sim-overlay" class="ob-overlay hidden">
+      <div class="sim-card">
+        <div class="ob-dots">
+          <span class="dot active"></span><span class="dot"></span
+          ><span class="dot"></span>
+        </div>
+        <button id="sim-close" class="sim-close-btn">&times;</button>
+        <div class="sim-step active" data-sim-step="0">
+          <h2>Optimize Configuration</h2>
+          <p>
+            Find the best portfolio parameters by testing thousands of
+            combinations.
+          </p>
+          <div class="ob-radios" style="margin-bottom: 12px">
+            <label
+              ><input type="radio" name="sim-mode" value="A" checked /> Mode A:
+              Given budget + years, find best check size & mix</label
+            >
+            <label
+              ><input type="radio" name="sim-mode" value="B" /> Mode B: Given
+              budget + check size, find best years & mix</label
+            >
+            <label
+              ><input type="radio" name="sim-mode" value="C" /> Mode C: Given
+              all sizes, find best stage mix & split</label
+            >
+          </div>
+          <div id="sim-fixed-params"></div>
+          <label class="ob-field"
+            >Optimize for:
+            <select
+              id="sim-target"
+              style="
+                padding: 6px;
+                background: var(--bg-input);
+                color: var(--text);
+                border: 1px solid var(--input-border);
+                border-radius: 4px;
+                font-size: 0.9rem;
+              "
+            >
+              <option value="balanced">Balanced (risk-adjusted)</option>
+              <option value="maxMoic">Max MOIC (base case)</option>
+              <option value="conservative">Conservative (bear case)</option>
+              <option value="sharpe">Sharpe-like (return/spread)</option>
+            </select>
+          </label>
+          <div class="ob-computed" id="sim-info"></div>
+          <button class="ob-next" id="sim-start">Run Simulation</button>
+        </div>
+        <div class="sim-step" data-sim-step="1">
+          <h2>Simulation Running</h2>
+          <div class="sim-progress">
+            <div class="sim-bar">
+              <div class="sim-fill" id="sim-progress-fill"></div>
+            </div>
+            <div class="sim-status" id="sim-status">Starting...</div>
+          </div>
+          <div class="sim-live">
+            <div class="sim-scatter-box">
+              <h3>Deals vs MOIC</h3>
+              <div id="sim-scatter"></div>
+            </div>
+            <div class="sim-lb-box">
+              <h3>Top 10</h3>
+              <div id="sim-leaderboard"></div>
+            </div>
+          </div>
+          <button class="ob-back" id="sim-cancel">Cancel</button>
+        </div>
+        <div class="sim-step" data-sim-step="2">
+          <h2>Results</h2>
+          <div id="sim-insights" class="sim-insights"></div>
+          <div class="sim-results-wrap" id="sim-results"></div>
+          <div class="ob-nav">
+            <button class="ob-back" id="sim-rerun">Run Again</button
+            ><button class="ob-next" id="sim-close-results">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <header class="site-header">
       <h1 class="logo">Angel Investment Model</h1>
       <button id="new-model-btn" class="new-model-btn" title="Start new model">
         New Model
+      </button>
+      <button
+        id="sim-btn"
+        class="new-model-btn"
+        title="Run optimizer simulation"
+      >
+        Simulate
       </button>
       <div class="scenario-controls">
         <select id="scenario-select" aria-label="Scenario"></select>
@@ -1028,5 +1118,6 @@
     <script src="charts.js"></script>
     <script src="sound.js"></script>
     <script src="app.js"></script>
+    <script src="simulator.js"></script>
   </body>
 </html>
