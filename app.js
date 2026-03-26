@@ -117,7 +117,7 @@
     if (!computed) return;
     renderConfig();
     renderCharts();
-    renderMetrics();
+    renderFloater();
   }
 
   function renderConfig() {
@@ -146,33 +146,6 @@
         pel.classList.toggle("valid", Math.abs(sum - 1) <= 0.01);
       }
     }
-
-    // Config panel summary
-    const f = computed.fees,
-      irr = computed.irr,
-      nw = computed.networth[10];
-    const oc = computed.oppcost[7],
-      inv = computed.capital.total;
-    let html = "";
-    const metrics = [
-      ["Net MOIC", fmtMult(f.netMOIC), true],
-      ["Base IRR", isNaN(irr.base) ? "N/A" : fmtPct(irr.base), false],
-      ["Total Deals", computed.tiers.totalDeals, false],
-      ["NW @ Yr 10", fmtINR(nw ? nw.totalNW : 0), false],
-      ["Angel %", fmtPct(nw ? nw.angelPct : 0), false],
-      ["vs Nifty", inv > 0 && oc ? fmtMult(oc.nifty / inv) : "—", false],
-    ];
-    metrics.forEach(([l, v, accent]) => {
-      html +=
-        '<div class="metric-pill"><span>' +
-        l +
-        "</span><strong" +
-        (accent ? ' class="accent"' : "") +
-        ">" +
-        v +
-        "</strong></div>";
-    });
-    document.getElementById("metrics-summary").innerHTML = html;
   }
 
   function renderCharts() {
@@ -267,30 +240,39 @@
     document.getElementById("chart-sensitivity").innerHTML = h;
   }
 
-  function renderMetrics() {
+  function renderFloater() {
     const f = computed.fees,
       m = computed.moic,
       irr = computed.irr;
-    const nw10 = computed.networth[10];
+    const nw10 = computed.networth[10],
+      oc8 = computed.oppcost[7];
+    const inv = computed.capital.total;
+    const pt = computed.postTaxMOIC;
     const items = [
-      ["Deals", computed.tiers.totalDeals],
-      ["Investable", fmtINR(computed.capital.investable)],
-      ["Net MOIC", fmtMult(f.netMOIC)],
-      ["Bull MOIC@10", fmtMult(m.bull.yr10)],
-      ["Base IRR", isNaN(irr.base) ? "N/A" : fmtPct(irr.base)],
-      ["NW@10", fmtINR(nw10 ? nw10.totalNW : 0)],
+      ["Deals", "" + computed.tiers.totalDeals, false],
+      ["Invested", fmtINR(inv), false],
+      ["Gross MOIC", fmtMult(f.grossMOIC), false],
+      ["Net MOIC", fmtMult(f.netMOIC), true],
+      ["Base@10", fmtMult(m.base.yr10), false],
+      ["Bull@10", fmtMult(m.bull.yr10), false],
+      ["Bear@10", fmtMult(m.bear.yr10), false],
+      ["IRR", isNaN(irr.base) ? "N/A" : fmtPct(irr.base), false],
+      ["NW@10", fmtINR(nw10 ? nw10.totalNW : 0), false],
+      ["Angel%", fmtPct(nw10 ? nw10.angelPct : 0), false],
+      ["vs Nifty", inv > 0 && oc8 ? fmtMult(oc8.nifty / inv) : "—", false],
     ];
     let html = "";
-    items.forEach(
-      ([l, v]) =>
-        (html +=
-          '<span class="metric-pill">' +
-          l +
-          " <strong>" +
-          v +
-          "</strong></span>"),
-    );
-    document.getElementById("metrics-bar").innerHTML = html;
+    items.forEach(([l, v, accent]) => {
+      html +=
+        '<span class="metric-pill">' +
+        l +
+        " <strong" +
+        (accent ? ' class="accent"' : "") +
+        ">" +
+        v +
+        "</strong></span>";
+    });
+    document.getElementById("metrics-floater").innerHTML = html;
   }
 
   // Theme

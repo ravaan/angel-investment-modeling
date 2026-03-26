@@ -137,7 +137,7 @@ body {
 .app-layout {
   display: grid;
   grid-template-columns: minmax(300px, 1fr) 2fr;
-  height: calc(100vh - 44px);
+  height: calc(100vh - 44px - 42px);
 }
 
 /* Config Panel (left) */
@@ -199,19 +199,27 @@ body {
   min-height: 0;
 }
 
-/* Metrics Bar */
-.metrics-bar {
-  display: flex;
-  gap: var(--sp-4);
-  padding: var(--sp-3) 0;
+/* Floating Metrics Bar */
+.metrics-floater {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 42px;
+  z-index: 150;
+  background: var(--bg-card);
   border-top: 1px solid var(--border);
-  margin-top: var(--sp-3);
-  flex-shrink: 0;
-  flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-5);
+  padding: 0 var(--sp-4);
+  transition: background var(--transition);
 }
 .metric-pill {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--text-muted);
+  white-space: nowrap;
 }
 .metric-pill strong {
   color: var(--text);
@@ -220,18 +228,11 @@ body {
 }
 .metric-pill strong.accent {
   color: var(--accent);
+  font-size: 0.82rem;
 }
-
-/* Metrics Summary (bottom of config panel) */
-.metrics-summary {
-  margin-top: var(--sp-4);
-  padding-top: var(--sp-3);
-  border-top: 1px solid var(--border);
-}
-.metrics-summary .metric-pill {
-  display: flex;
-  justify-content: space-between;
-  padding: 2px 0;
+.metric-pill .sep {
+  color: var(--border);
+  margin: 0 var(--sp-1);
 }
 
 /* Fieldsets */
@@ -517,9 +518,11 @@ dialog button:hover {
   .input-grid.cols-4 {
     grid-template-columns: 1fr;
   }
-  .metrics-bar {
-    flex-direction: column;
-    gap: var(--sp-1);
+  .metrics-floater {
+    gap: var(--sp-2);
+    font-size: 0.65rem;
+    overflow-x: auto;
+    justify-content: flex-start;
   }
 }
 
