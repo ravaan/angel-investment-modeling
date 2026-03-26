@@ -1,8 +1,4 @@
-/**
- * Angel Investment Model — SVG Chart Rendering
- */
 "use strict";
-
 const Charts = {
   colors: {
     base: "#4a9e5c",
@@ -10,7 +6,6 @@ const Charts = {
     bear: "#c77da0",
     stages: ["#6ba3d6", "#4a9e5c", "#b8922a", "#c77da0"],
   },
-
   svg(tag, attrs, children) {
     const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
     if (attrs) Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
@@ -21,28 +16,26 @@ const Charts = {
       });
     return el;
   },
-
   fmtShort(n) {
-    if (Math.abs(n) >= 1e7) return (n / 1e7).toFixed(1) + " Cr";
-    if (Math.abs(n) >= 1e5) return (n / 1e5).toFixed(1) + " L";
+    if (Math.abs(n) >= 1e7) return (n / 1e7).toFixed(1) + "Cr";
+    if (Math.abs(n) >= 1e5) return (n / 1e5).toFixed(1) + "L";
     return Math.round(n).toLocaleString("en-IN");
   },
 
-  // ── Donut Chart ──
   donut(container, values, labels, colors) {
     container.innerHTML = "";
     const total = values.reduce((a, b) => a + b, 0);
     if (total === 0) return;
-    const W = 300,
-      H = 200,
-      cx = 100,
-      cy = 100,
-      R = 80,
-      r = 50;
+    const W = 280,
+      H = 150,
+      cx = 75,
+      cy = 75,
+      R = 65,
+      r = 40;
     const root = this.svg("svg", {
       viewBox: `0 0 ${W} ${H}`,
       role: "img",
-      "aria-label": "Stage allocation donut chart",
+      "aria-label": "Stage allocation",
     });
     let angle = -Math.PI / 2;
     values.forEach((v, i) => {
@@ -64,24 +57,23 @@ const Charts = {
       root.appendChild(path);
       angle += slice;
     });
-    // Legend
     labels.forEach((l, i) => {
-      const y = 20 + i * 22;
+      const y = 14 + i * 18;
       root.appendChild(
         this.svg("rect", {
-          x: 200,
-          y: y - 6,
-          width: 12,
-          height: 12,
+          x: 160,
+          y: y - 5,
+          width: 10,
+          height: 10,
           rx: 2,
           fill: colors[i],
         }),
       );
       const txt = this.svg("text", {
-        x: 218,
+        x: 175,
         y: y + 4,
         fill: "currentColor",
-        "font-size": "11",
+        "font-size": "9",
       });
       txt.textContent = `${l} ${(values[i] * 100).toFixed(0)}%`;
       root.appendChild(txt);
@@ -89,12 +81,11 @@ const Charts = {
     container.appendChild(root);
   },
 
-  // ── Line Chart ──
   line(container, series, labels, title) {
     container.innerHTML = "";
     const W = 600,
-      H = 300,
-      pad = { t: 40, r: 20, b: 40, l: 70 };
+      H = 200,
+      pad = { t: 18, r: 15, b: 24, l: 50 };
     const pw = W - pad.l - pad.r,
       ph = H - pad.t - pad.b;
     const root = this.svg("svg", {
@@ -102,18 +93,6 @@ const Charts = {
       role: "img",
       "aria-label": title,
     });
-    // Title
-    const ttl = this.svg("text", {
-      x: W / 2,
-      y: 20,
-      fill: "currentColor",
-      "font-size": "13",
-      "text-anchor": "middle",
-      "font-weight": "600",
-    });
-    ttl.textContent = title;
-    root.appendChild(ttl);
-    // Find range
     let yMin = Infinity,
       yMax = -Infinity;
     series.forEach((s) =>
@@ -129,7 +108,6 @@ const Charts = {
     const yRange = yMax - yMin;
     yMin -= yRange * 0.05;
     yMax += yRange * 0.05;
-    // Grid
     for (let i = 0; i <= 4; i++) {
       const y = pad.t + (i / 4) * ph;
       root.appendChild(
@@ -144,29 +122,27 @@ const Charts = {
       );
       const val = yMax - (i / 4) * (yMax - yMin);
       const lbl = this.svg("text", {
-        x: pad.l - 8,
-        y: y + 4,
+        x: pad.l - 6,
+        y: y + 3,
         fill: "currentColor",
-        "font-size": "9",
+        "font-size": "8",
         "text-anchor": "end",
       });
       lbl.textContent = this.fmtShort(val);
       root.appendChild(lbl);
     }
-    // X labels
     labels.forEach((l, i) => {
       const x = pad.l + (i / (labels.length - 1)) * pw;
       const lbl = this.svg("text", {
         x,
-        y: H - 10,
+        y: H - 6,
         fill: "currentColor",
-        "font-size": "9",
+        "font-size": "8",
         "text-anchor": "middle",
       });
       lbl.textContent = l;
       root.appendChild(lbl);
     });
-    // Lines
     const colors = [this.colors.base, this.colors.bull, this.colors.bear];
     series.forEach((s, si) => {
       const pts = s.data
@@ -181,18 +157,17 @@ const Charts = {
           points: pts,
           fill: "none",
           stroke: colors[si],
-          "stroke-width": "2.5",
+          "stroke-width": "2",
           "stroke-linejoin": "round",
         }),
       );
-      // Dots
       s.data.forEach((v, i) => {
         const x = pad.l + (i / (s.data.length - 1)) * pw;
         const y = pad.t + (1 - (v - yMin) / (yMax - yMin)) * ph;
         const dot = this.svg("circle", {
           cx: x,
           cy: y,
-          r: 3,
+          r: 2.5,
           fill: colors[si],
         });
         const tip = this.svg("title");
@@ -201,24 +176,23 @@ const Charts = {
         root.appendChild(dot);
       });
     });
-    // Legend
     series.forEach((s, i) => {
-      const lx = pad.l + i * 100;
+      const lx = pad.l + i * 80;
       root.appendChild(
         this.svg("line", {
           x1: lx,
-          y1: 32,
-          x2: lx + 16,
-          y2: 32,
+          y1: 8,
+          x2: lx + 14,
+          y2: 8,
           stroke: colors[i],
           "stroke-width": "2",
         }),
       );
       const lt = this.svg("text", {
-        x: lx + 20,
-        y: 36,
+        x: lx + 18,
+        y: 11,
         fill: "currentColor",
-        "font-size": "10",
+        "font-size": "9",
       });
       lt.textContent = s.name;
       root.appendChild(lt);
@@ -226,12 +200,11 @@ const Charts = {
     container.appendChild(root);
   },
 
-  // ── Bar Chart ──
   bar(container, categories, values, colors, title) {
     container.innerHTML = "";
     const W = 500,
-      H = 280,
-      pad = { t: 40, r: 20, b: 60, l: 70 };
+      H = 180,
+      pad = { t: 12, r: 15, b: 36, l: 50 };
     const pw = W - pad.l - pad.r,
       ph = H - pad.t - pad.b;
     const root = this.svg("svg", {
@@ -239,16 +212,6 @@ const Charts = {
       role: "img",
       "aria-label": title,
     });
-    const ttl = this.svg("text", {
-      x: W / 2,
-      y: 20,
-      fill: "currentColor",
-      "font-size": "13",
-      "text-anchor": "middle",
-      "font-weight": "600",
-    });
-    ttl.textContent = title;
-    root.appendChild(ttl);
     const yMax = Math.max(...values) * 1.15 || 1;
     const barW = (pw / categories.length) * 0.6;
     const gap = pw / categories.length;
@@ -262,25 +225,25 @@ const Charts = {
           y,
           width: barW,
           height: barH,
-          rx: 3,
+          rx: 2,
           fill: colors[i % colors.length],
           opacity: "0.85",
         }),
       );
       const vt = this.svg("text", {
         x: x + barW / 2,
-        y: y - 4,
+        y: y - 3,
         fill: "currentColor",
-        "font-size": "9",
+        "font-size": "8",
         "text-anchor": "middle",
       });
       vt.textContent = this.fmtShort(values[i]);
       root.appendChild(vt);
       const ct = this.svg("text", {
         x: x + barW / 2,
-        y: H - 10,
+        y: H - 8,
         fill: "currentColor",
-        "font-size": "9",
+        "font-size": "8",
         "text-anchor": "middle",
       });
       ct.textContent = cat;
@@ -289,12 +252,11 @@ const Charts = {
     container.appendChild(root);
   },
 
-  // ── Stacked Area Chart ──
   area(container, series, labels, title) {
     container.innerHTML = "";
     const W = 600,
-      H = 300,
-      pad = { t: 40, r: 20, b: 40, l: 70 };
+      H = 200,
+      pad = { t: 18, r: 15, b: 24, l: 50 };
     const pw = W - pad.l - pad.r,
       ph = H - pad.t - pad.b;
     const root = this.svg("svg", {
@@ -302,21 +264,10 @@ const Charts = {
       role: "img",
       "aria-label": title,
     });
-    const ttl = this.svg("text", {
-      x: W / 2,
-      y: 20,
-      fill: "currentColor",
-      "font-size": "13",
-      "text-anchor": "middle",
-      "font-weight": "600",
-    });
-    ttl.textContent = title;
-    root.appendChild(ttl);
     const stacked = series[0].data.map((_, i) =>
       series.reduce((a, s) => a + s.data[i], 0),
     );
     const yMax = Math.max(...stacked) * 1.1 || 1;
-    // Grid
     for (let i = 0; i <= 4; i++) {
       const y = pad.t + (i / 4) * ph;
       root.appendChild(
@@ -331,10 +282,10 @@ const Charts = {
       );
       const val = yMax - (i / 4) * yMax;
       const lbl = this.svg("text", {
-        x: pad.l - 8,
-        y: y + 4,
+        x: pad.l - 6,
+        y: y + 3,
         fill: "currentColor",
-        "font-size": "9",
+        "font-size": "8",
         "text-anchor": "end",
       });
       lbl.textContent = this.fmtShort(val);
@@ -344,9 +295,9 @@ const Charts = {
       const x = pad.l + (i / (labels.length - 1)) * pw;
       const lt = this.svg("text", {
         x,
-        y: H - 10,
+        y: H - 6,
         fill: "currentColor",
-        "font-size": "9",
+        "font-size": "8",
         "text-anchor": "middle",
       });
       lt.textContent = l;
@@ -383,25 +334,24 @@ const Charts = {
       );
       baseline = baseline.map((v, i) => v + s.data[i]);
     });
-    // Legend
     series.forEach((s, i) => {
-      const lx = pad.l + i * 140;
+      const lx = pad.l + i * 120;
       root.appendChild(
         this.svg("rect", {
           x: lx,
-          y: 28,
-          width: 12,
-          height: 12,
+          y: 6,
+          width: 10,
+          height: 10,
           rx: 2,
           fill: areaColors[i % areaColors.length],
           opacity: "0.6",
         }),
       );
       const lt = this.svg("text", {
-        x: lx + 16,
-        y: 38,
+        x: lx + 14,
+        y: 14,
         fill: "currentColor",
-        "font-size": "10",
+        "font-size": "9",
       });
       lt.textContent = s.name;
       root.appendChild(lt);
@@ -409,7 +359,6 @@ const Charts = {
     container.appendChild(root);
   },
 
-  // ── Heatmap color ──
   heatColor(val, min, max) {
     const t = max > min ? (val - min) / (max - min) : 0.5;
     const r = t < 0.5 ? 190 : Math.round(190 - (t - 0.5) * 2 * 110);

@@ -169,11 +169,13 @@ body {
 .charts-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
   gap: var(--sp-2);
   flex: 1;
 }
 .charts-grid.cols-3 {
   grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
 }
 .chart-cell {
   background: var(--bg-card);
