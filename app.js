@@ -708,6 +708,16 @@
     obSet("ob-budget", budget);
     document.getElementById("ob-years").value = years;
     obSet("ob-followon", followon);
+    const channel =
+      exp === "first"
+        ? "mostly-syndicate"
+        : exp === "some"
+          ? "mix"
+          : "mostly-direct";
+    const chRadio = document.querySelector(
+      'input[name="ob-channel"][value="' + channel + '"]',
+    );
+    if (chRadio) chRadio.checked = true;
     document.getElementById("ob-budget-hint").textContent =
       "Suggested: " + pct * 100 + "% of your " + fmtINR(nw) + " net worth";
     obUpdateTotal();
@@ -801,7 +811,17 @@
       sa +
       "% | B " +
       sb +
-      "%";
+      "%<br>" +
+      "Channel: <strong>" +
+      {
+        "mostly-syndicate": "Mostly Syndicates (60%)",
+        mix: "Mix (30% syndicate)",
+        "mostly-direct": "Mostly Direct (10% syndicate)",
+      }[
+        document.querySelector('input[name="ob-channel"]:checked')?.value ||
+          "mix"
+      ] +
+      "</strong>";
   }
 
   function obGoTo(step) {
@@ -834,6 +854,14 @@
     setVal(state, "stage_mix.1", obVal("ob-sd") / 100);
     setVal(state, "stage_mix.2", obVal("ob-sa") / 100);
     setVal(state, "stage_mix.3", obVal("ob-sb") / 100);
+    const ch =
+      document.querySelector('input[name="ob-channel"]:checked')?.value ||
+      "mix";
+    setVal(
+      state,
+      "syndicate_pct",
+      ch === "mostly-syndicate" ? 0.6 : ch === "mix" ? 0.3 : 0.1,
+    );
     refreshInputs();
     scheduleRecompute();
     document.getElementById("onboarding").classList.add("hidden");
