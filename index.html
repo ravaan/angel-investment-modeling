@@ -13,6 +13,14 @@
   <body>
     <header class="site-header">
       <h1 class="logo">Angel Investment Model</h1>
+      <div class="scenario-controls">
+        <select id="scenario-select" aria-label="Scenario"></select>
+        <button id="scenario-save" title="Save scenario">Save</button>
+        <button id="scenario-export" title="Export as CSV">Export</button>
+        <label id="scenario-import-label" title="Import CSV" class="btn-label"
+          >Import<input type="file" id="scenario-import" accept=".csv" hidden
+        /></label>
+      </div>
       <div class="controls">
         <button
           id="grid-toggle"

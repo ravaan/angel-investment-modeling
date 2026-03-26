@@ -102,6 +102,39 @@ body {
   font-weight: 600;
   color: var(--text);
 }
+.scenario-controls {
+  display: flex;
+  gap: var(--sp-1);
+  align-items: center;
+  margin-left: auto;
+  margin-right: var(--sp-3);
+}
+.scenario-controls select {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 2px 6px;
+  font-size: 0.72rem;
+  max-width: 120px;
+}
+.scenario-controls button,
+.scenario-controls .btn-label {
+  background: var(--bg);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 2px 8px;
+  font-size: 0.68rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition);
+}
+.scenario-controls button:hover,
+.scenario-controls .btn-label:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
+}
 .controls {
   display: flex;
   gap: var(--sp-2);

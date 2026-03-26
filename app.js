@@ -500,6 +500,149 @@
     });
   }
 
+  // ── Scenario Management ──
+  function flattenState(obj, prefix) {
+    const out = [];
+    for (const k in obj) {
+      const key = prefix ? prefix + "." + k : k;
+      const v = obj[k];
+      if (Array.isArray(v)) {
+        v.forEach((item, i) => {
+          if (Array.isArray(item))
+            item.forEach((x, j) => out.push([key + "." + i + "." + j, x]));
+          else out.push([key + "." + i, item]);
+        });
+      } else if (typeof v === "object" && v !== null) {
+        out.push(...flattenState(v, key));
+      } else {
+        out.push([key, v]);
+      }
+    }
+    return out;
+  }
+
+  function refreshInputs() {
+    document.querySelectorAll("[data-key]").forEach((el) => {
+      displayInput(el, getVal(state, el.dataset.key));
+    });
+  }
+
+  function loadStateFrom(src) {
+    const copy = JSON.parse(JSON.stringify(src));
+    for (const k in copy) state[k] = copy[k];
+    refreshInputs();
+    scheduleRecompute();
+  }
+
+  function getSavedScenarios() {
+    try {
+      return JSON.parse(localStorage.getItem("scenarios") || "{}");
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function updateDropdown() {
+    const sel = document.getElementById("scenario-select");
+    const active = localStorage.getItem("activeScenario") || "Default";
+    const scenarios = getSavedScenarios();
+    sel.innerHTML = '<option value="__default">Default</option>';
+    Object.keys(scenarios).forEach((name) => {
+      const opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = name;
+      sel.appendChild(opt);
+    });
+    sel.value = active === "Default" ? "__default" : active;
+  }
+
+  function initScenarios() {
+    updateDropdown();
+    const sel = document.getElementById("scenario-select");
+    // Load active scenario on startup
+    const active = localStorage.getItem("activeScenario");
+    if (active && active !== "Default") {
+      const scenarios = getSavedScenarios();
+      if (scenarios[active]) loadStateFrom(scenarios[active]);
+    }
+    // Switch scenario
+    sel.addEventListener("change", () => {
+      const name = sel.value;
+      if (name === "__default") {
+        loadStateFrom(DEFAULTS);
+        localStorage.setItem("activeScenario", "Default");
+      } else {
+        const scenarios = getSavedScenarios();
+        if (scenarios[name]) {
+          loadStateFrom(scenarios[name]);
+          localStorage.setItem("activeScenario", name);
+        }
+      }
+      Sound.play("tab");
+      showToast("Loaded: " + (name === "__default" ? "Default" : name));
+    });
+    // Save
+    document.getElementById("scenario-save").addEventListener("click", () => {
+      const current = sel.value === "__default" ? "" : sel.value;
+      const name = prompt("Scenario name:", current);
+      if (!name || !name.trim()) return;
+      const scenarios = getSavedScenarios();
+      scenarios[name.trim()] = JSON.parse(JSON.stringify(state));
+      localStorage.setItem("scenarios", JSON.stringify(scenarios));
+      localStorage.setItem("activeScenario", name.trim());
+      updateDropdown();
+      showToast("Saved: " + name.trim());
+      Sound.play("success");
+    });
+    // Export CSV
+    document.getElementById("scenario-export").addEventListener("click", () => {
+      const pairs = flattenState(state, "");
+      let csv = "Angel Investment Model - Scenario Export\nParameter,Value\n";
+      pairs.forEach(([k, v]) => (csv += k + "," + v + "\n"));
+      const blob = new Blob([csv], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      const name = sel.value === "__default" ? "default" : sel.value;
+      a.download = "angel-model-" + name.replace(/\s+/g, "-") + ".csv";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      showToast("Exported CSV");
+    });
+    // Import CSV
+    document
+      .getElementById("scenario-import")
+      .addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const lines = reader.result.split("\n");
+          let count = 0;
+          lines.forEach((line) => {
+            const idx = line.indexOf(",");
+            if (idx < 0) return;
+            const key = line.substring(0, idx).trim();
+            const val = parseFloat(line.substring(idx + 1).trim());
+            if (isNaN(val) || !key || key === "Parameter") return;
+            try {
+              setVal(state, key, val);
+              count++;
+            } catch (e) {}
+          });
+          if (count > 0) {
+            refreshInputs();
+            scheduleRecompute();
+            showToast("Imported " + count + " values from " + file.name);
+            Sound.play("success");
+          } else {
+            showToast("No valid data found in file");
+          }
+          e.target.value = "";
+        };
+        reader.readAsText(file);
+      });
+  }
+
   // Init
   function init() {
     loadTheme();
@@ -512,6 +655,7 @@
     bindControls();
     initGrid();
     initDnD();
+    initScenarios();
     computed = recalcAll(state);
     render();
   }
