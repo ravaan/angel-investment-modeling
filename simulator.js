@@ -2,35 +2,55 @@
 (function () {
   // ── Constants ──
   const STAGE_MIXES = [
+    [0.7, 0.2, 0.1, 0],
+    [0.65, 0.25, 0.1, 0],
     [0.6, 0.3, 0.1, 0],
+    [0.6, 0.25, 0.1, 0.05],
     [0.55, 0.35, 0.1, 0],
+    [0.55, 0.3, 0.1, 0.05],
     [0.5, 0.35, 0.1, 0.05],
     [0.5, 0.3, 0.15, 0.05],
+    [0.5, 0.25, 0.15, 0.1],
     [0.45, 0.35, 0.15, 0.05],
+    [0.45, 0.3, 0.15, 0.1],
+    [0.45, 0.25, 0.2, 0.1],
     [0.4, 0.35, 0.15, 0.1],
     [0.4, 0.3, 0.2, 0.1],
+    [0.4, 0.25, 0.2, 0.15],
     [0.35, 0.35, 0.2, 0.1],
     [0.35, 0.3, 0.25, 0.1],
+    [0.35, 0.35, 0.15, 0.15],
     [0.3, 0.4, 0.2, 0.1],
     [0.3, 0.35, 0.25, 0.1],
     [0.3, 0.3, 0.25, 0.15],
+    [0.3, 0.3, 0.2, 0.2],
     [0.25, 0.4, 0.25, 0.1],
     [0.25, 0.35, 0.25, 0.15],
+    [0.25, 0.35, 0.2, 0.2],
     [0.2, 0.4, 0.25, 0.15],
     [0.2, 0.35, 0.3, 0.15],
     [0.2, 0.55, 0.2, 0.05],
-    [0.7, 0.2, 0.1, 0],
+    [0.2, 0.3, 0.3, 0.2],
     [0.15, 0.45, 0.25, 0.15],
+    [0.15, 0.4, 0.3, 0.15],
+    [0.15, 0.35, 0.3, 0.2],
     [0.1, 0.5, 0.25, 0.15],
+    [0.1, 0.45, 0.3, 0.15],
+    [0.1, 0.4, 0.3, 0.2],
   ];
   const CHECK_T1S = [
     100000, 150000, 200000, 250000, 300000, 400000, 500000, 750000, 1000000,
+    1500000,
   ];
-  const T2_RATIOS = [1.5, 2, 2.5];
-  const ALLOC_T1S = [0.4, 0.5, 0.6, 0.7, 0.8];
-  const SYND_PCTS = [0, 0.15, 0.3, 0.5, 0.7];
-  const FOLLOWON_PCTS = [0, 0.1, 0.2, 0.3];
-  const DEPLOY_YEARS = [1, 2, 3];
+  const CHECK_T1S_FINE = [
+    75000, 100000, 125000, 150000, 175000, 200000, 250000, 300000, 350000,
+    400000, 500000, 600000, 750000, 1000000, 1500000,
+  ];
+  const T2_RATIOS = [1.25, 1.5, 1.75, 2, 2.5];
+  const ALLOC_T1S = [0.3, 0.4, 0.5, 0.55, 0.6, 0.7, 0.8];
+  const SYND_PCTS = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7];
+  const FOLLOWON_PCTS = [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3];
+  const DEPLOY_YEARS = [1, 2, 3, 4, 5];
 
   const MODES = {
     A: {
@@ -66,6 +86,19 @@
         followon_pct: FOLLOWON_PCTS,
       },
     },
+    D: {
+      label: "Exhaustive: sweep everything (budget fixed only)",
+      fixed: ["annual_budget"],
+      sweep: {
+        deploy_years: DEPLOY_YEARS,
+        check_t1: CHECK_T1S_FINE,
+        t2_ratio: T2_RATIOS,
+        alloc_t1: ALLOC_T1S,
+        stage_mix: STAGE_MIXES,
+        syndicate_pct: SYND_PCTS,
+        followon_pct: FOLLOWON_PCTS,
+      },
+    },
   };
 
   // ── Scoring ──
@@ -92,12 +125,32 @@
 
   // ── Worker Code Builder ──
   function buildWorkerSrc() {
-    const fns = [calcCapital, calcTiers, calcScenarioEV, recalcLite]
+    const fns = [
+      calcCapital,
+      calcTiers,
+      calcDeployment,
+      calcPortfolioStage,
+      calcPortfolio,
+      calcScenarioEV,
+      calcFeesTax,
+      calcJCurve,
+      calcMOIC,
+      calcPostTaxMOIC,
+      calcIRR,
+      buildCashFlows,
+      calcNetWorth,
+      calcOppCost,
+      calcEV,
+      calcSensitivity,
+      recalcAll,
+      recalcLite,
+    ]
       .map((f) => f.toString())
       .join("\n");
     return `"use strict";
-const STAGES=${JSON.stringify(STAGES)};
-const DEFAULTS=${JSON.stringify(DEFAULTS)};
+var STAGES=${JSON.stringify(STAGES)};
+var OUTCOMES=${JSON.stringify(OUTCOMES)};
+var DEFAULTS=${JSON.stringify(DEFAULTS)};
 ${fns}
 self.onmessage=function(e){
   if(e.data.type!=="start")return;
@@ -128,8 +181,9 @@ self.onmessage=function(e){
   for(var i=0;i<total;i++){
     var cfg=configs[i], s=JSON.parse(JSON.stringify(base));
     for(var k in cfg){if(k==="stage_mix")s.stage_mix=cfg.stage_mix.slice();else s[k]=cfg[k];}
-    var r=recalcLite(s);
-    var m={moicBase:r.moic.base,moicBull:r.moic.bull,moicBear:r.moic.bear,deals:r.deals};
+    var r=recalcAll(s);
+    var m={moicBase:r.moic.base.yr10,moicBull:r.moic.bull.yr10,moicBear:r.moic.bear.yr10,deals:r.tiers.totalDeals,
+      irrBase:r.irr.base,netMoic:r.fees.netMOIC,grossMoic:r.fees.grossMOIC};
     var scr=sc(m);
     var warns=[];
     if(m.deals<15)warns.push("<15 deals");
@@ -287,7 +341,7 @@ self.onmessage=function(e){
   // ── Results Table ──
   function renderResults(container, topN) {
     var h =
-      "<table><thead><tr><th>#</th><th>T1</th><th>T2</th><th>Alloc</th><th>Mix</th><th>Synd</th><th>FO</th><th>Yrs</th><th>Deals</th><th>Base</th><th>Bull</th><th>Bear</th><th>Score</th><th>Warn</th><th></th></tr></thead><tbody>";
+      "<table><thead><tr><th>#</th><th>T1</th><th>T2</th><th>Alloc</th><th>Mix</th><th>Synd</th><th>FO</th><th>Yrs</th><th>Deals</th><th>Base</th><th>Bull</th><th>Bear</th><th>Net MOIC</th><th>IRR</th><th>Score</th><th>Warn</th><th></th></tr></thead><tbody>";
     topN.slice(0, 5).forEach(function (e, i) {
       var c = e.config,
         m = e.metrics,
@@ -321,6 +375,12 @@ self.onmessage=function(e){
         fmtM(m.moicBull) +
         "</td><td>" +
         fmtM(m.moicBear) +
+        "</td><td>" +
+        fmtM(m.netMoic) +
+        "</td><td>" +
+        (m.irrBase && !isNaN(m.irrBase)
+          ? (m.irrBase * 100).toFixed(1) + "%"
+          : "N/A") +
         "</td><td>" +
         e.score.toFixed(2) +
         "</td><td>" +
