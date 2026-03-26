@@ -363,6 +363,80 @@
       );
   }
 
+  // Grid toggle
+  let gridCols = localStorage.getItem("gridCols") || "2";
+  function initGrid() {
+    const grid = document.getElementById("charts-grid");
+    if (gridCols === "3") grid.classList.add("cols-3");
+    document.getElementById("grid-icon").textContent =
+      gridCols === "3" ? "▤" : "▦";
+    document.getElementById("grid-toggle").addEventListener("click", () => {
+      gridCols = gridCols === "2" ? "3" : "2";
+      grid.classList.toggle("cols-3", gridCols === "3");
+      document.getElementById("grid-icon").textContent =
+        gridCols === "3" ? "▤" : "▦";
+      localStorage.setItem("gridCols", gridCols);
+      render();
+      Sound.play("tab");
+    });
+  }
+
+  // Drag and drop
+  function initDnD() {
+    const grid = document.getElementById("charts-grid");
+    let dragEl = null;
+    // Restore order
+    const saved = localStorage.getItem("chartOrder");
+    if (saved) {
+      try {
+        const order = JSON.parse(saved);
+        const cells = Array.from(grid.children);
+        const map = {};
+        cells.forEach((c) => (map[c.dataset.chart] = c));
+        order.forEach((id) => {
+          if (map[id]) grid.appendChild(map[id]);
+        });
+      } catch (e) {}
+    }
+    grid.addEventListener("dragstart", (e) => {
+      const cell = e.target.closest(".chart-cell");
+      if (!cell) return;
+      dragEl = cell;
+      cell.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+    });
+    grid.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      const cell = e.target.closest(".chart-cell");
+      if (cell && cell !== dragEl) cell.classList.add("drag-over");
+    });
+    grid.addEventListener("dragleave", (e) => {
+      const cell = e.target.closest(".chart-cell");
+      if (cell) cell.classList.remove("drag-over");
+    });
+    grid.addEventListener("drop", (e) => {
+      e.preventDefault();
+      const target = e.target.closest(".chart-cell");
+      if (!target || !dragEl || target === dragEl) return;
+      target.classList.remove("drag-over");
+      const tmp = document.createElement("div");
+      grid.replaceChild(tmp, dragEl);
+      grid.replaceChild(dragEl, target);
+      grid.replaceChild(target, tmp);
+      // Save order
+      const newOrder = Array.from(grid.children).map((c) => c.dataset.chart);
+      localStorage.setItem("chartOrder", JSON.stringify(newOrder));
+      render();
+    });
+    grid.addEventListener("dragend", () => {
+      if (dragEl) dragEl.classList.remove("dragging");
+      grid
+        .querySelectorAll(".drag-over")
+        .forEach((c) => c.classList.remove("drag-over"));
+      dragEl = null;
+    });
+  }
+
   // Init
   function init() {
     loadTheme();
@@ -373,6 +447,8 @@
     bindInputs();
     bindKeyboard();
     bindControls();
+    initGrid();
+    initDnD();
     computed = recalcAll(state);
     render();
   }

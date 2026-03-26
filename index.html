@@ -805,28 +805,37 @@
 
       <!-- ─── CHARTS PANEL (right 2/3) ─── -->
       <main class="charts-panel">
-        <div class="charts-grid">
-          <div class="chart-cell">
+        <div class="charts-toolbar">
+          <button
+            id="grid-toggle"
+            aria-label="Toggle grid layout"
+            title="Toggle 2x3 / 3x2 grid"
+          >
+            <span id="grid-icon">▦</span>
+          </button>
+        </div>
+        <div class="charts-grid" id="charts-grid">
+          <div class="chart-cell" draggable="true" data-chart="stage">
             <h3>Stage Allocation</h3>
             <div id="chart-stage-alloc"></div>
           </div>
-          <div class="chart-cell">
+          <div class="chart-cell" draggable="true" data-chart="jcurve">
             <h3>Portfolio Value (J-Curve)</h3>
             <div id="chart-jcurve"></div>
           </div>
-          <div class="chart-cell">
+          <div class="chart-cell" draggable="true" data-chart="moic">
             <h3>MOIC at Year 10</h3>
             <div id="chart-moic"></div>
           </div>
-          <div class="chart-cell">
+          <div class="chart-cell" draggable="true" data-chart="networth">
             <h3>Net Worth Composition</h3>
             <div id="chart-networth"></div>
           </div>
-          <div class="chart-cell">
+          <div class="chart-cell" draggable="true" data-chart="oppcost">
             <h3>Opportunity Cost (Yr 8)</h3>
             <div id="chart-oppcost"></div>
           </div>
-          <div class="chart-cell">
+          <div class="chart-cell" draggable="true" data-chart="sensitivity">
             <h3>Sensitivity: Fail x Multiple</h3>
             <div id="chart-sensitivity"></div>
           </div>

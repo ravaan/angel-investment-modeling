@@ -166,11 +166,38 @@ body {
   display: flex;
   flex-direction: column;
 }
+.charts-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--sp-2);
+  flex-shrink: 0;
+}
+.charts-toolbar button {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+}
+.charts-toolbar button:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
 .charts-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--sp-3);
   flex: 1;
+}
+.charts-grid.cols-3 {
+  grid-template-columns: 1fr 1fr 1fr;
 }
 .chart-cell {
   background: var(--bg-card);
@@ -197,6 +224,16 @@ body {
 .chart-cell > div {
   flex: 1;
   min-height: 0;
+}
+.chart-cell[draggable="true"] {
+  cursor: grab;
+}
+.chart-cell.dragging {
+  opacity: 0.3;
+}
+.chart-cell.drag-over {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
 }
 
 /* Floating Metrics Bar */
@@ -502,11 +539,15 @@ dialog button:hover {
     border-bottom: 1px solid var(--border);
     max-height: 50vh;
   }
-  .charts-grid {
+  .charts-grid,
+  .charts-grid.cols-3 {
     grid-template-columns: 1fr 1fr;
   }
   .chart-cell {
     min-height: 200px;
+  }
+  .chart-cell[draggable="true"] {
+    cursor: default;
   }
 }
 @media (max-width: 640px) {
