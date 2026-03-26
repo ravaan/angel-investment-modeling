@@ -1011,6 +1011,11 @@
     initDnD();
     initScenarios();
     initOnboarding();
+    // Expose to simulator.js
+    window.state = state;
+    window.refreshInputs = refreshInputs;
+    window.scheduleRecompute = scheduleRecompute;
+    window.showToast = showToast;
     if (typeof initSimulator === "function") initSimulator();
     computed = recalcAll(state);
     render();
