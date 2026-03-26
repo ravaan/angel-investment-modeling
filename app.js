@@ -500,6 +500,145 @@
     });
   }
 
+  // ── Pre-built Scenarios ──
+  function merge(base, overrides) {
+    const out = JSON.parse(JSON.stringify(base));
+    for (const k in overrides) {
+      if (Array.isArray(overrides[k]))
+        out[k] = JSON.parse(JSON.stringify(overrides[k]));
+      else if (typeof overrides[k] === "object" && overrides[k] !== null)
+        out[k] = merge(out[k] || {}, overrides[k]);
+      else out[k] = overrides[k];
+    }
+    return out;
+  }
+  const PRESETS = {
+    "Conservative (Low Risk)": merge(DEFAULTS, {
+      annual_budget: 2500000,
+      check_t1: 200000,
+      check_t2: 300000,
+      stage_mix: [0.3, 0.4, 0.2, 0.1],
+      prob: [
+        [0.75, 0.13, 0.08, 0.03, 0.01],
+        [0.6, 0.2, 0.12, 0.06, 0.02],
+        [0.4, 0.25, 0.2, 0.1, 0.05],
+        [0.3, 0.3, 0.25, 0.1, 0.05],
+      ],
+      followon_pct: 0.2,
+      syndicate_pct: 0.5,
+      scenario_mods: {
+        base: { fail: 1, winner_mult: 1, hr_prob: 1 },
+        bull: { fail: 0.9, winner_mult: 1.2, hr_prob: 1.2 },
+        bear: { fail: 1.2, winner_mult: 0.8, hr_prob: 0.5 },
+      },
+    }),
+    "Aggressive (High Conviction)": merge(DEFAULTS, {
+      annual_budget: 7500000,
+      deploy_years: 3,
+      check_t1: 500000,
+      check_t2: 1000000,
+      alloc_t1: 0.5,
+      alloc_t2: 0.5,
+      stage_mix: [0.6, 0.3, 0.08, 0.02],
+      prob: [
+        [0.65, 0.15, 0.1, 0.06, 0.04],
+        [0.5, 0.18, 0.15, 0.1, 0.07],
+        [0.3, 0.2, 0.2, 0.2, 0.1],
+        [0.2, 0.25, 0.25, 0.2, 0.1],
+      ],
+      mult: [
+        [1.5, 4, 20, 80],
+        [1.5, 4, 15, 50],
+        [1.5, 4, 10, 30],
+        [1.5, 4, 8, 20],
+      ],
+      followon_pct: 0.25,
+      syndicate_pct: 0.15,
+      scenario_mods: {
+        base: { fail: 1, winner_mult: 1, hr_prob: 1 },
+        bull: { fail: 0.7, winner_mult: 1.5, hr_prob: 2 },
+        bear: { fail: 1.3, winner_mult: 0.6, hr_prob: 0.3 },
+      },
+    }),
+    "Diversified (30+ Deals)": merge(DEFAULTS, {
+      annual_budget: 5000000,
+      check_t1: 200000,
+      check_t2: 300000,
+      alloc_t1: 0.7,
+      alloc_t2: 0.3,
+      stage_mix: [0.55, 0.35, 0.08, 0.02],
+      followon_pct: 0.1,
+    }),
+    "Seed Focused": merge(DEFAULTS, {
+      stage_mix: [0.2, 0.55, 0.2, 0.05],
+      prob: [
+        [0.7, 0.15, 0.1, 0.04, 0.01],
+        [0.5, 0.22, 0.15, 0.08, 0.05],
+        [0.35, 0.25, 0.2, 0.15, 0.05],
+        [0.25, 0.3, 0.25, 0.15, 0.05],
+      ],
+      mult: [
+        [1.5, 4, 15, 50],
+        [1.5, 5, 15, 40],
+        [1.5, 4, 10, 25],
+        [1.5, 4, 6, 15],
+      ],
+    }),
+    "10 Cr NW / 1 Cr Budget": merge(DEFAULTS, {
+      starting_nw: 100000000,
+      annual_budget: 10000000,
+      deploy_years: 2,
+      check_t1: 500000,
+      check_t2: 1000000,
+      nw_guardrail: 0.15,
+    }),
+    "First-Time Angel (25L)": merge(DEFAULTS, {
+      annual_budget: 2500000,
+      deploy_years: 1,
+      check_t1: 200000,
+      check_t2: 300000,
+      alloc_t1: 0.8,
+      alloc_t2: 0.2,
+      stage_mix: [0.6, 0.3, 0.1, 0],
+      starting_nw: 30000000,
+      nw_guardrail: 0.1,
+      syndicate_pct: 0.6,
+      followon_pct: 0,
+      prob: [
+        [0.75, 0.12, 0.08, 0.04, 0.01],
+        [0.6, 0.18, 0.12, 0.07, 0.03],
+        [0.4, 0.25, 0.2, 0.1, 0.05],
+        [0.3, 0.3, 0.25, 0.1, 0.05],
+      ],
+    }),
+    "Direct Only (No Syndicates)": merge(DEFAULTS, {
+      syndicate_pct: 0,
+      mgmt_fee: 0,
+      carry: 0,
+    }),
+    "Pessimistic Bear Market": merge(DEFAULTS, {
+      prob: [
+        [0.8, 0.1, 0.06, 0.03, 0.01],
+        [0.65, 0.18, 0.1, 0.05, 0.02],
+        [0.45, 0.25, 0.18, 0.09, 0.03],
+        [0.35, 0.3, 0.22, 0.1, 0.03],
+      ],
+      mult: [
+        [1.5, 3, 10, 30],
+        [1.5, 3, 8, 20],
+        [1.5, 3, 6, 15],
+        [1.5, 3, 5, 10],
+      ],
+      nw_growth: 0.06,
+      nifty_cagr: 0.08,
+      scenario_mods: {
+        base: { fail: 1.1, winner_mult: 0.8, hr_prob: 0.7 },
+        bull: { fail: 0.95, winner_mult: 1, hr_prob: 1 },
+        bear: { fail: 1.3, winner_mult: 0.5, hr_prob: 0.3 },
+      },
+    }),
+  };
+
   // ── Scenario Management ──
   function flattenState(obj, prefix) {
     const out = [];
@@ -546,14 +685,33 @@
     const sel = document.getElementById("scenario-select");
     const active = localStorage.getItem("activeScenario") || "Default";
     const scenarios = getSavedScenarios();
-    sel.innerHTML = '<option value="__default">Default</option>';
-    Object.keys(scenarios).forEach((name) => {
+    sel.innerHTML = '<option value="__default">Default (50L/yr)</option>';
+    // Presets group
+    const pg = document.createElement("optgroup");
+    pg.label = "Presets";
+    Object.keys(PRESETS).forEach((name) => {
       const opt = document.createElement("option");
-      opt.value = name;
+      opt.value = "__preset:" + name;
       opt.textContent = name;
-      sel.appendChild(opt);
+      pg.appendChild(opt);
     });
-    sel.value = active === "Default" ? "__default" : active;
+    sel.appendChild(pg);
+    // User-saved group
+    const names = Object.keys(scenarios);
+    if (names.length) {
+      const ug = document.createElement("optgroup");
+      ug.label = "Your Scenarios";
+      names.forEach((name) => {
+        const opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name;
+        ug.appendChild(opt);
+      });
+      sel.appendChild(ug);
+    }
+    if (active === "Default") sel.value = "__default";
+    else if (active.startsWith("__preset:")) sel.value = active;
+    else sel.value = active;
   }
 
   function initScenarios() {
@@ -562,24 +720,36 @@
     // Load active scenario on startup
     const active = localStorage.getItem("activeScenario");
     if (active && active !== "Default") {
-      const scenarios = getSavedScenarios();
-      if (scenarios[active]) loadStateFrom(scenarios[active]);
+      if (active.startsWith("__preset:")) {
+        const name = active.substring(9);
+        if (PRESETS[name]) loadStateFrom(PRESETS[name]);
+      } else {
+        const scenarios = getSavedScenarios();
+        if (scenarios[active]) loadStateFrom(scenarios[active]);
+      }
     }
     // Switch scenario
     sel.addEventListener("change", () => {
-      const name = sel.value;
-      if (name === "__default") {
+      const val = sel.value;
+      let label;
+      if (val === "__default") {
         loadStateFrom(DEFAULTS);
-        localStorage.setItem("activeScenario", "Default");
+        label = "Default";
+      } else if (val.startsWith("__preset:")) {
+        const name = val.substring(9);
+        if (PRESETS[name]) loadStateFrom(PRESETS[name]);
+        label = name;
       } else {
         const scenarios = getSavedScenarios();
-        if (scenarios[name]) {
-          loadStateFrom(scenarios[name]);
-          localStorage.setItem("activeScenario", name);
-        }
+        if (scenarios[val]) loadStateFrom(scenarios[val]);
+        label = val;
       }
+      localStorage.setItem(
+        "activeScenario",
+        val === "__default" ? "Default" : val,
+      );
       Sound.play("tab");
-      showToast("Loaded: " + (name === "__default" ? "Default" : name));
+      showToast("Loaded: " + label);
     });
     // Save
     document.getElementById("scenario-save").addEventListener("click", () => {
