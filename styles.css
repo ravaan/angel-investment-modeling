@@ -166,30 +166,6 @@ body {
   display: flex;
   flex-direction: column;
 }
-.charts-toolbar {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: var(--sp-1);
-  flex-shrink: 0;
-}
-.charts-toolbar button {
-  width: 24px;
-  height: 24px;
-  border-radius: 3px;
-  border: 1px solid var(--border);
-  background: var(--bg);
-  color: var(--text-muted);
-  cursor: pointer;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all var(--transition);
-}
-.charts-toolbar button:hover {
-  background: var(--bg-hover);
-  color: var(--text);
-}
 .charts-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

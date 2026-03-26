@@ -15,6 +15,13 @@
       <h1 class="logo">Angel Investment Model</h1>
       <div class="controls">
         <button
+          id="grid-toggle"
+          aria-label="Toggle grid layout"
+          title="Toggle 2x3 / 3x2 grid"
+        >
+          <span id="grid-icon">▦</span>
+        </button>
+        <button
           id="theme-toggle"
           aria-label="Toggle theme (T)"
           title="Toggle theme (T)"
@@ -805,15 +812,6 @@
 
       <!-- ─── CHARTS PANEL (right 2/3) ─── -->
       <main class="charts-panel">
-        <div class="charts-toolbar">
-          <button
-            id="grid-toggle"
-            aria-label="Toggle grid layout"
-            title="Toggle 2x3 / 3x2 grid"
-          >
-            <span id="grid-icon">▦</span>
-          </button>
-        </div>
         <div class="charts-grid" id="charts-grid">
           <div class="chart-cell" draggable="true" data-chart="stage">
             <h3>Stage Allocation</h3>
