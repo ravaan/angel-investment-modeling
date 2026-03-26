@@ -17,8 +17,8 @@ const Charts = {
     return el;
   },
   fmtShort(n) {
-    if (Math.abs(n) >= 1e7) return (n / 1e7).toFixed(1) + "Cr";
-    if (Math.abs(n) >= 1e5) return (n / 1e5).toFixed(1) + "L";
+    if (Math.abs(n) >= 1e7) return (n / 1e7).toFixed(1) + " Cr";
+    if (Math.abs(n) >= 1e5) return (n / 1e5).toFixed(1) + " L";
     return Math.round(n).toLocaleString("en-IN");
   },
 
@@ -26,14 +26,15 @@ const Charts = {
     container.innerHTML = "";
     const total = values.reduce((a, b) => a + b, 0);
     if (total === 0) return;
-    const W = 280,
-      H = 150,
-      cx = 75,
-      cy = 75,
-      R = 65,
-      r = 40;
+    const W = 340,
+      H = 220,
+      cx = 95,
+      cy = 110,
+      R = 85,
+      r = 52;
     const root = this.svg("svg", {
       viewBox: `0 0 ${W} ${H}`,
+      preserveAspectRatio: "xMidYMid meet",
       role: "img",
       "aria-label": "Stage allocation",
     });
@@ -58,22 +59,22 @@ const Charts = {
       angle += slice;
     });
     labels.forEach((l, i) => {
-      const y = 14 + i * 18;
+      const y = 30 + i * 24;
       root.appendChild(
         this.svg("rect", {
-          x: 160,
-          y: y - 5,
-          width: 10,
-          height: 10,
-          rx: 2,
+          x: 200,
+          y: y - 6,
+          width: 14,
+          height: 14,
+          rx: 3,
           fill: colors[i],
         }),
       );
       const txt = this.svg("text", {
-        x: 175,
-        y: y + 4,
+        x: 220,
+        y: y + 5,
         fill: "currentColor",
-        "font-size": "9",
+        "font-size": "13",
       });
       txt.textContent = `${l} ${(values[i] * 100).toFixed(0)}%`;
       root.appendChild(txt);
@@ -83,13 +84,14 @@ const Charts = {
 
   line(container, series, labels, title) {
     container.innerHTML = "";
-    const W = 600,
-      H = 200,
-      pad = { t: 18, r: 15, b: 24, l: 50 };
+    const W = 440,
+      H = 300,
+      pad = { t: 24, r: 16, b: 30, l: 56 };
     const pw = W - pad.l - pad.r,
       ph = H - pad.t - pad.b;
     const root = this.svg("svg", {
       viewBox: `0 0 ${W} ${H}`,
+      preserveAspectRatio: "xMidYMid meet",
       role: "img",
       "aria-label": title,
     });
@@ -123,9 +125,9 @@ const Charts = {
       const val = yMax - (i / 4) * (yMax - yMin);
       const lbl = this.svg("text", {
         x: pad.l - 6,
-        y: y + 3,
+        y: y + 4,
         fill: "currentColor",
-        "font-size": "8",
+        "font-size": "10",
         "text-anchor": "end",
       });
       lbl.textContent = this.fmtShort(val);
@@ -135,9 +137,9 @@ const Charts = {
       const x = pad.l + (i / (labels.length - 1)) * pw;
       const lbl = this.svg("text", {
         x,
-        y: H - 6,
+        y: H - 8,
         fill: "currentColor",
-        "font-size": "8",
+        "font-size": "10",
         "text-anchor": "middle",
       });
       lbl.textContent = l;
@@ -157,7 +159,7 @@ const Charts = {
           points: pts,
           fill: "none",
           stroke: colors[si],
-          "stroke-width": "2",
+          "stroke-width": "2.5",
           "stroke-linejoin": "round",
         }),
       );
@@ -167,7 +169,7 @@ const Charts = {
         const dot = this.svg("circle", {
           cx: x,
           cy: y,
-          r: 2.5,
+          r: 3,
           fill: colors[si],
         });
         const tip = this.svg("title");
@@ -177,22 +179,22 @@ const Charts = {
       });
     });
     series.forEach((s, i) => {
-      const lx = pad.l + i * 80;
+      const lx = pad.l + i * 90;
       root.appendChild(
         this.svg("line", {
           x1: lx,
-          y1: 8,
-          x2: lx + 14,
-          y2: 8,
+          y1: 10,
+          x2: lx + 16,
+          y2: 10,
           stroke: colors[i],
-          "stroke-width": "2",
+          "stroke-width": "2.5",
         }),
       );
       const lt = this.svg("text", {
-        x: lx + 18,
-        y: 11,
+        x: lx + 20,
+        y: 14,
         fill: "currentColor",
-        "font-size": "9",
+        "font-size": "10",
       });
       lt.textContent = s.name;
       root.appendChild(lt);
@@ -202,19 +204,21 @@ const Charts = {
 
   bar(container, categories, values, colors, title) {
     container.innerHTML = "";
-    const W = 500,
-      H = 180,
-      pad = { t: 12, r: 15, b: 36, l: 50 };
+    const n = categories.length;
+    const W = n <= 3 ? 340 : 440,
+      H = 260,
+      pad = { t: 16, r: 16, b: 40, l: 50 };
     const pw = W - pad.l - pad.r,
       ph = H - pad.t - pad.b;
     const root = this.svg("svg", {
       viewBox: `0 0 ${W} ${H}`,
+      preserveAspectRatio: "xMidYMid meet",
       role: "img",
       "aria-label": title,
     });
     const yMax = Math.max(...values) * 1.15 || 1;
-    const barW = (pw / categories.length) * 0.6;
-    const gap = pw / categories.length;
+    const barW = (pw / n) * 0.6;
+    const gap = pw / n;
     categories.forEach((cat, i) => {
       const x = pad.l + i * gap + (gap - barW) / 2;
       const barH = (values[i] / yMax) * ph;
@@ -225,25 +229,25 @@ const Charts = {
           y,
           width: barW,
           height: barH,
-          rx: 2,
+          rx: 3,
           fill: colors[i % colors.length],
           opacity: "0.85",
         }),
       );
       const vt = this.svg("text", {
         x: x + barW / 2,
-        y: y - 3,
+        y: y - 5,
         fill: "currentColor",
-        "font-size": "8",
+        "font-size": "11",
         "text-anchor": "middle",
       });
       vt.textContent = this.fmtShort(values[i]);
       root.appendChild(vt);
       const ct = this.svg("text", {
         x: x + barW / 2,
-        y: H - 8,
+        y: H - 10,
         fill: "currentColor",
-        "font-size": "8",
+        "font-size": "10",
         "text-anchor": "middle",
       });
       ct.textContent = cat;
@@ -254,13 +258,14 @@ const Charts = {
 
   area(container, series, labels, title) {
     container.innerHTML = "";
-    const W = 600,
-      H = 200,
-      pad = { t: 18, r: 15, b: 24, l: 50 };
+    const W = 440,
+      H = 300,
+      pad = { t: 24, r: 16, b: 30, l: 56 };
     const pw = W - pad.l - pad.r,
       ph = H - pad.t - pad.b;
     const root = this.svg("svg", {
       viewBox: `0 0 ${W} ${H}`,
+      preserveAspectRatio: "xMidYMid meet",
       role: "img",
       "aria-label": title,
     });
@@ -283,9 +288,9 @@ const Charts = {
       const val = yMax - (i / 4) * yMax;
       const lbl = this.svg("text", {
         x: pad.l - 6,
-        y: y + 3,
+        y: y + 4,
         fill: "currentColor",
-        "font-size": "8",
+        "font-size": "10",
         "text-anchor": "end",
       });
       lbl.textContent = this.fmtShort(val);
@@ -295,9 +300,9 @@ const Charts = {
       const x = pad.l + (i / (labels.length - 1)) * pw;
       const lt = this.svg("text", {
         x,
-        y: H - 6,
+        y: H - 8,
         fill: "currentColor",
-        "font-size": "8",
+        "font-size": "10",
         "text-anchor": "middle",
       });
       lt.textContent = l;
@@ -335,23 +340,23 @@ const Charts = {
       baseline = baseline.map((v, i) => v + s.data[i]);
     });
     series.forEach((s, i) => {
-      const lx = pad.l + i * 120;
+      const lx = pad.l + i * 130;
       root.appendChild(
         this.svg("rect", {
           x: lx,
-          y: 6,
-          width: 10,
-          height: 10,
+          y: 8,
+          width: 12,
+          height: 12,
           rx: 2,
           fill: areaColors[i % areaColors.length],
           opacity: "0.6",
         }),
       );
       const lt = this.svg("text", {
-        x: lx + 14,
-        y: 14,
+        x: lx + 17,
+        y: 17,
         fill: "currentColor",
-        "font-size": "9",
+        "font-size": "10",
       });
       lt.textContent = s.name;
       root.appendChild(lt);

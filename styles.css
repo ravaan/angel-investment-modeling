@@ -169,13 +169,12 @@ body {
 .charts-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr;
   gap: var(--sp-2);
   flex: 1;
+  align-content: start;
 }
 .charts-grid.cols-3 {
   grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
 }
 .chart-cell {
   background: var(--bg-card);
@@ -194,14 +193,18 @@ body {
   letter-spacing: 0.04em;
   margin-bottom: var(--sp-1);
 }
-.chart-cell svg,
+.chart-cell svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
 .chart-cell table {
   width: 100%;
-  height: auto;
 }
 .chart-cell > div {
   flex: 1;
   min-height: 0;
+  overflow: hidden;
 }
 .chart-cell[draggable="true"] {
   cursor: grab;
@@ -400,7 +403,7 @@ td:first-child {
 
 /* Heatmap (sensitivity) */
 .heatmap {
-  font-size: 0.7rem;
+  font-size: 0.78rem;
 }
 .heatmap td {
   text-align: center;
