@@ -364,7 +364,7 @@
   }
 
   // Grid toggle
-  let gridCols = localStorage.getItem("gridCols") || "2";
+  let gridCols = localStorage.getItem("gridCols") || "3";
   function initGrid() {
     const grid = document.getElementById("charts-grid");
     if (gridCols === "3") grid.classList.add("cols-3");
