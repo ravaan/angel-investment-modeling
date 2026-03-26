@@ -216,23 +216,24 @@ self.onmessage=function(e){
 
   // ── Scatter Canvas ──
   var scatterCanvas, scatterCtx, scatterImg, scatterBounds;
+  var SC_W = 600,
+    SC_H = 400;
   function initScatter(container) {
     container.innerHTML = "";
     scatterCanvas = document.createElement("canvas");
-    scatterCanvas.width = 400;
-    scatterCanvas.height = 260;
+    scatterCanvas.width = SC_W;
+    scatterCanvas.height = SC_H;
     scatterCanvas.style.width = "100%";
-    scatterCanvas.style.maxWidth = "400px";
     scatterCanvas.style.borderRadius = "4px";
     container.appendChild(scatterCanvas);
     scatterCtx = scatterCanvas.getContext("2d");
-    scatterImg = scatterCtx.createImageData(400, 260);
+    scatterImg = scatterCtx.createImageData(SC_W, SC_H);
     scatterBounds = { xMin: 5, xMax: 50, yMin: 0, yMax: 4 };
   }
   function drawScatterBatch(pts) {
-    var W = 400,
-      H = 260,
-      pad = { t: 8, r: 8, b: 24, l: 40 };
+    var W = SC_W,
+      H = SC_H,
+      pad = { t: 12, r: 12, b: 30, l: 50 };
     var pw = W - pad.l - pad.r,
       ph = H - pad.t - pad.b;
     var b = scatterBounds,
@@ -280,23 +281,23 @@ self.onmessage=function(e){
     scatterCtx.fillStyle = getComputedStyle(
       document.documentElement,
     ).getPropertyValue("--text-muted");
-    scatterCtx.font = "9px system-ui";
+    scatterCtx.font = "11px system-ui";
     scatterCtx.textAlign = "center";
-    for (var i = 0; i <= 4; i++) {
-      var x = 40 + (i / 4) * 332;
+    for (var i = 0; i <= 5; i++) {
+      var x = pad.l + (i / 5) * (W - pad.l - pad.r);
       scatterCtx.fillText(
-        Math.round(b.xMin + (i / 4) * (b.xMax - b.xMin)),
+        Math.round(b.xMin + (i / 5) * (b.xMax - b.xMin)),
         x,
-        256,
+        H - 8,
       );
     }
     scatterCtx.textAlign = "right";
-    for (var i = 0; i <= 4; i++) {
-      var y = 8 + (i / 4) * 228;
+    for (var i = 0; i <= 5; i++) {
+      var y = pad.t + (i / 5) * (H - pad.t - pad.b);
       scatterCtx.fillText(
-        (b.yMax - (i / 4) * (b.yMax - b.yMin)).toFixed(1) + "x",
-        36,
-        y + 3,
+        (b.yMax - (i / 5) * (b.yMax - b.yMin)).toFixed(1) + "x",
+        pad.l - 6,
+        y + 4,
       );
     }
   }

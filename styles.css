@@ -277,13 +277,14 @@ body {
 .sim-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 24px;
-  max-width: 900px;
-  width: 95vw;
-  max-height: 90vh;
+  border-radius: 0;
+  padding: 24px 32px;
+  width: 100vw;
+  height: 100vh;
   overflow-y: auto;
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 .sim-close-btn {
   position: absolute;
@@ -297,9 +298,6 @@ body {
 }
 .sim-step {
   display: none;
-}
-.sim-step.active {
-  display: block;
 }
 .sim-step h2 {
   font-size: 1rem;
@@ -331,11 +329,29 @@ body {
   color: var(--text-muted);
   margin-bottom: 8px;
 }
+.sim-step.active {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
 .sim-live {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin: 8px 0;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+}
+.sim-scatter-box,
+.sim-lb-box {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.sim-scatter-box canvas {
+  flex: 1;
+  width: 100% !important;
+  max-width: none !important;
 }
 .sim-lb-box table,
 .sim-results-wrap table {
