@@ -532,7 +532,7 @@
         bear: { fail: 1.2, winner_mult: 0.8, hr_prob: 0.5 },
       },
     }),
-    "Aggressive (High Conviction)": merge(DEFAULTS, {
+    "Aggressive (75L, 3yr)": merge(DEFAULTS, {
       annual_budget: 7500000,
       deploy_years: 3,
       check_t1: 500000,
@@ -540,25 +540,14 @@
       alloc_t1: 0.5,
       alloc_t2: 0.5,
       stage_mix: [0.6, 0.3, 0.08, 0.02],
-      prob: [
-        [0.65, 0.15, 0.1, 0.06, 0.04],
-        [0.5, 0.18, 0.15, 0.1, 0.07],
-        [0.3, 0.2, 0.2, 0.2, 0.1],
-        [0.2, 0.25, 0.25, 0.2, 0.1],
-      ],
+      followon_pct: 0.25,
+      syndicate_pct: 0.15,
       mult: [
         [1.5, 4, 20, 80],
         [1.5, 4, 15, 50],
         [1.5, 4, 10, 30],
         [1.5, 4, 8, 20],
       ],
-      followon_pct: 0.25,
-      syndicate_pct: 0.15,
-      scenario_mods: {
-        base: { fail: 1, winner_mult: 1, hr_prob: 1 },
-        bull: { fail: 0.7, winner_mult: 1.5, hr_prob: 2 },
-        bear: { fail: 1.3, winner_mult: 0.6, hr_prob: 0.3 },
-      },
     }),
     "Diversified (30+ Deals)": merge(DEFAULTS, {
       annual_budget: 5000000,
@@ -611,31 +600,10 @@
         [0.3, 0.3, 0.25, 0.1, 0.05],
       ],
     }),
-    "Direct Only (No Syndicates)": merge(DEFAULTS, {
+    "Direct Only (No Fees)": merge(DEFAULTS, {
       syndicate_pct: 0,
       mgmt_fee: 0,
       carry: 0,
-    }),
-    "Pessimistic Bear Market": merge(DEFAULTS, {
-      prob: [
-        [0.8, 0.1, 0.06, 0.03, 0.01],
-        [0.65, 0.18, 0.1, 0.05, 0.02],
-        [0.45, 0.25, 0.18, 0.09, 0.03],
-        [0.35, 0.3, 0.22, 0.1, 0.03],
-      ],
-      mult: [
-        [1.5, 3, 10, 30],
-        [1.5, 3, 8, 20],
-        [1.5, 3, 6, 15],
-        [1.5, 3, 5, 10],
-      ],
-      nw_growth: 0.06,
-      nifty_cagr: 0.08,
-      scenario_mods: {
-        base: { fail: 1.1, winner_mult: 0.8, hr_prob: 0.7 },
-        bull: { fail: 0.95, winner_mult: 1, hr_prob: 1 },
-        bear: { fail: 1.3, winner_mult: 0.5, hr_prob: 0.3 },
-      },
     }),
   };
 
@@ -712,6 +680,194 @@
     if (active === "Default") sel.value = "__default";
     else if (active.startsWith("__preset:")) sel.value = active;
     else sel.value = active;
+  }
+
+  // ── Onboarding Wizard ──
+  function obVal(id) {
+    return parseFloat(document.getElementById(id).value.replace(/,/g, "")) || 0;
+  }
+  function obSet(id, v) {
+    document.getElementById(id).value =
+      typeof v === "number"
+        ? new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 }).format(v)
+        : v;
+  }
+  function obExp() {
+    return (
+      document.querySelector('input[name="ob-exp"]:checked')?.value || "first"
+    );
+  }
+
+  function obSuggestStep2() {
+    const nw = obVal("ob-nw"),
+      exp = obExp();
+    const pct = exp === "first" ? 0.05 : exp === "some" ? 0.08 : 0.1;
+    const budget = Math.round((nw * pct) / 100000) * 100000;
+    const years = exp === "first" ? 1 : exp === "some" ? 2 : 3;
+    const followon = exp === "first" ? 0 : exp === "some" ? 15 : 25;
+    obSet("ob-budget", budget);
+    document.getElementById("ob-years").value = years;
+    obSet("ob-followon", followon);
+    document.getElementById("ob-budget-hint").textContent =
+      "Suggested: " + pct * 100 + "% of your " + fmtINR(nw) + " net worth";
+    obUpdateTotal();
+  }
+
+  function obUpdateTotal() {
+    const b = obVal("ob-budget"),
+      y = parseInt(document.getElementById("ob-years").value) || 1;
+    const f = (obVal("ob-followon") || 0) / 100;
+    const total = b * y,
+      investable = total * (1 - f);
+    document.getElementById("ob-total").textContent =
+      "Total: " + fmtINR(total) + " | Investable: " + fmtINR(investable);
+  }
+
+  function obSuggestStep3() {
+    const budget = obVal("ob-budget"),
+      exp = obExp();
+    const t1 = Math.round(budget / 20 / 50000) * 50000 || 200000;
+    const t2 = Math.round((t1 * 1.5) / 50000) * 50000;
+    obSet("ob-t1", t1);
+    obSet("ob-t2", t2);
+    const mixes = {
+      first: [60, 30, 10, 0],
+      some: [50, 35, 10, 5],
+      active: [40, 35, 15, 10],
+    };
+    const mix = mixes[exp] || mixes.some;
+    obSet("ob-ps", mix[0]);
+    obSet("ob-sd", mix[1]);
+    obSet("ob-sa", mix[2]);
+    obSet("ob-sb", mix[3]);
+    const y = parseInt(document.getElementById("ob-years").value) || 1;
+    const f = (obVal("ob-followon") || 0) / 100;
+    const investable = obVal("ob-budget") * y * (1 - f);
+    const avgCheck = t1 * 0.6 + t2 * 0.4;
+    const deals = Math.round(investable / avgCheck);
+    document.getElementById("ob-deal-hint").textContent =
+      "Suggested check sizes for ~" +
+      deals +
+      " deals over " +
+      y +
+      " year" +
+      (y > 1 ? "s" : "");
+    document.getElementById("ob-deals").textContent =
+      "~" + deals + " deals | Avg check: " + fmtINR(avgCheck);
+  }
+
+  function obBuildSummary() {
+    const nw = obVal("ob-nw"),
+      budget = obVal("ob-budget");
+    const years = parseInt(document.getElementById("ob-years").value) || 1;
+    const f = (obVal("ob-followon") || 0) / 100;
+    const total = budget * years,
+      investable = total * (1 - f);
+    const t1 = obVal("ob-t1"),
+      t2 = obVal("ob-t2");
+    const avgCheck = t1 * 0.6 + t2 * 0.4;
+    const deals = Math.round(investable / avgCheck);
+    const ps = obVal("ob-ps"),
+      sd = obVal("ob-sd"),
+      sa = obVal("ob-sa"),
+      sb = obVal("ob-sb");
+    document.getElementById("ob-summary").innerHTML =
+      "Net Worth: <strong>" +
+      fmtINR(nw) +
+      "</strong><br>" +
+      "Annual Budget: <strong>" +
+      fmtINR(budget) +
+      "</strong> x " +
+      years +
+      " years<br>" +
+      "Total Capital: <strong>" +
+      fmtINR(total) +
+      "</strong> (Reserve: " +
+      (f * 100).toFixed(0) +
+      "%)<br>" +
+      "Check Sizes: <strong>" +
+      fmtINR(t1) +
+      "</strong> / <strong>" +
+      fmtINR(t2) +
+      "</strong><br>" +
+      "Estimated Deals: <strong>~" +
+      deals +
+      "</strong><br>" +
+      "Stage Mix: Pre-Seed " +
+      ps +
+      "% | Seed " +
+      sd +
+      "% | A " +
+      sa +
+      "% | B " +
+      sb +
+      "%";
+  }
+
+  function obGoTo(step) {
+    document
+      .querySelectorAll(".ob-step")
+      .forEach((s) => s.classList.remove("active"));
+    document
+      .querySelector('.ob-step[data-step="' + step + '"]')
+      .classList.add("active");
+    document
+      .querySelectorAll(".ob-dots .dot")
+      .forEach((d, i) => d.classList.toggle("active", i <= step));
+    if (step === 1) obSuggestStep2();
+    if (step === 2) obSuggestStep3();
+    if (step === 3) obBuildSummary();
+  }
+
+  function obLaunch() {
+    const nw = obVal("ob-nw"),
+      budget = obVal("ob-budget");
+    const years = parseInt(document.getElementById("ob-years").value) || 1;
+    const followon = (obVal("ob-followon") || 0) / 100;
+    setVal(state, "starting_nw", nw);
+    setVal(state, "annual_budget", budget);
+    setVal(state, "deploy_years", years);
+    setVal(state, "followon_pct", followon);
+    setVal(state, "check_t1", obVal("ob-t1"));
+    setVal(state, "check_t2", obVal("ob-t2"));
+    setVal(state, "stage_mix.0", obVal("ob-ps") / 100);
+    setVal(state, "stage_mix.1", obVal("ob-sd") / 100);
+    setVal(state, "stage_mix.2", obVal("ob-sa") / 100);
+    setVal(state, "stage_mix.3", obVal("ob-sb") / 100);
+    refreshInputs();
+    scheduleRecompute();
+    document.getElementById("onboarding").classList.add("hidden");
+    localStorage.setItem("onboarded", "1");
+    showToast("Dashboard ready!");
+    Sound.play("success");
+  }
+
+  function initOnboarding() {
+    const overlay = document.getElementById("onboarding");
+    if (localStorage.getItem("onboarded") === "1") {
+      overlay.classList.add("hidden");
+    }
+    // Navigation
+    overlay.querySelectorAll("[data-to]").forEach((btn) => {
+      btn.addEventListener("click", () => obGoTo(parseInt(btn.dataset.to)));
+    });
+    document.getElementById("ob-launch").addEventListener("click", obLaunch);
+    // Live updates
+    document
+      .getElementById("ob-budget")
+      .addEventListener("input", obUpdateTotal);
+    document
+      .getElementById("ob-years")
+      .addEventListener("input", obUpdateTotal);
+    document
+      .getElementById("ob-followon")
+      .addEventListener("input", obUpdateTotal);
+    // New Model button
+    document.getElementById("new-model-btn").addEventListener("click", () => {
+      loadStateFrom(DEFAULTS);
+      overlay.classList.remove("hidden");
+      obGoTo(0);
+    });
   }
 
   function initScenarios() {
@@ -826,6 +982,7 @@
     initGrid();
     initDnD();
     initScenarios();
+    initOnboarding();
     computed = recalcAll(state);
     render();
   }

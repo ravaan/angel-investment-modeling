@@ -11,8 +11,128 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <!-- Onboarding Wizard -->
+    <div id="onboarding" class="ob-overlay">
+      <div class="ob-card">
+        <div class="ob-dots">
+          <span class="dot active"></span><span class="dot"></span
+          ><span class="dot"></span><span class="dot"></span>
+        </div>
+
+        <div class="ob-step active" data-step="0">
+          <h2>Welcome</h2>
+          <p>Let's build your angel investment model in 4 quick steps.</p>
+          <label class="ob-field"
+            >Your Net Worth (INR)<input
+              type="text"
+              id="ob-nw"
+              inputmode="decimal"
+              value="5,00,00,000"
+          /></label>
+          <label class="ob-field"
+            >Experience Level
+            <div class="ob-radios">
+              <label
+                ><input type="radio" name="ob-exp" value="first" checked />
+                First-time angel</label
+              >
+              <label
+                ><input type="radio" name="ob-exp" value="some" /> Some
+                experience</label
+              >
+              <label
+                ><input type="radio" name="ob-exp" value="active" /> Active
+                investor</label
+              >
+            </div>
+          </label>
+          <button class="ob-next" data-to="1">Next</button>
+        </div>
+
+        <div class="ob-step" data-step="1">
+          <h2>Your Budget</h2>
+          <p class="ob-hint" id="ob-budget-hint"></p>
+          <label class="ob-field"
+            >Annual Budget (INR)<input
+              type="text"
+              id="ob-budget"
+              inputmode="decimal"
+          /></label>
+          <label class="ob-field"
+            >Years of Deployment<input
+              type="number"
+              id="ob-years"
+              min="1"
+              max="10"
+              step="1"
+          /></label>
+          <label class="ob-field"
+            >Follow-on Reserve %<input
+              type="text"
+              id="ob-followon"
+              inputmode="decimal"
+          /></label>
+          <div class="ob-computed" id="ob-total"></div>
+          <div class="ob-nav">
+            <button class="ob-back" data-to="0">Back</button
+            ><button class="ob-next" data-to="2">Next</button>
+          </div>
+        </div>
+
+        <div class="ob-step" data-step="2">
+          <h2>Deal Strategy</h2>
+          <p class="ob-hint" id="ob-deal-hint"></p>
+          <div class="ob-row">
+            <label class="ob-field"
+              >Tier 1 Check (INR)<input
+                type="text"
+                id="ob-t1"
+                inputmode="decimal"
+            /></label>
+            <label class="ob-field"
+              >Tier 2 Check (INR)<input
+                type="text"
+                id="ob-t2"
+                inputmode="decimal"
+            /></label>
+          </div>
+          <div class="ob-row">
+            <label class="ob-field"
+              >Pre-Seed %<input type="text" id="ob-ps" inputmode="decimal"
+            /></label>
+            <label class="ob-field"
+              >Seed %<input type="text" id="ob-sd" inputmode="decimal"
+            /></label>
+            <label class="ob-field"
+              >Series A %<input type="text" id="ob-sa" inputmode="decimal"
+            /></label>
+            <label class="ob-field"
+              >Series B %<input type="text" id="ob-sb" inputmode="decimal"
+            /></label>
+          </div>
+          <div class="ob-computed" id="ob-deals"></div>
+          <div class="ob-nav">
+            <button class="ob-back" data-to="1">Back</button
+            ><button class="ob-next" data-to="3">Next</button>
+          </div>
+        </div>
+
+        <div class="ob-step" data-step="3">
+          <h2>Review & Launch</h2>
+          <div class="ob-summary" id="ob-summary"></div>
+          <div class="ob-nav">
+            <button class="ob-back" data-to="2">Back</button
+            ><button class="ob-launch" id="ob-launch">Launch Dashboard</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <header class="site-header">
       <h1 class="logo">Angel Investment Model</h1>
+      <button id="new-model-btn" class="new-model-btn" title="Start new model">
+        New Model
+      </button>
       <div class="scenario-controls">
         <select id="scenario-select" aria-label="Scenario"></select>
         <button id="scenario-save" title="Save scenario">Save</button>

@@ -102,6 +102,173 @@ body {
   font-weight: 600;
   color: var(--text);
 }
+.new-model-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 3px;
+  padding: 2px 8px;
+  font-size: 0.68rem;
+  cursor: pointer;
+  transition: all var(--transition);
+  margin-left: var(--sp-2);
+}
+.new-model-btn:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
+}
+
+/* Onboarding */
+.ob-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ob-overlay.hidden {
+  display: none;
+}
+.ob-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 28px;
+  max-width: 460px;
+  width: 90%;
+}
+.ob-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.ob-dots .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+}
+.ob-dots .dot.active {
+  background: var(--accent);
+}
+.ob-step {
+  display: none;
+}
+.ob-step.active {
+  display: block;
+}
+.ob-step h2 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.ob-step p {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+.ob-hint {
+  font-size: 0.76rem;
+  color: var(--accent);
+  font-style: italic;
+}
+.ob-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 10px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.ob-field input[type="text"],
+.ob-field input[type="number"] {
+  background: var(--bg-input);
+  color: var(--text);
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  padding: 7px 9px;
+  font-size: 0.92rem;
+  width: 100%;
+}
+.ob-field input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.ob-radios {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 3px;
+}
+.ob-radios label {
+  font-size: 0.82rem;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.ob-radios input[type="radio"] {
+  accent-color: var(--accent);
+}
+.ob-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.ob-row:has(:nth-child(4)) {
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+.ob-computed {
+  font-size: 0.8rem;
+  color: var(--accent);
+  margin: 6px 0;
+  font-weight: 500;
+}
+.ob-summary {
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+.ob-summary strong {
+  color: var(--accent);
+}
+.ob-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+  gap: 8px;
+}
+.ob-next,
+.ob-launch {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 7px 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: auto;
+}
+.ob-next:hover,
+.ob-launch:hover {
+  filter: brightness(1.1);
+}
+.ob-back {
+  background: none;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 7px 14px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.ob-back:hover {
+  color: var(--text);
+}
 .scenario-controls {
   display: flex;
   gap: var(--sp-1);
