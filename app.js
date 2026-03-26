@@ -238,6 +238,69 @@
     });
     h += "</tbody></table>";
     document.getElementById("chart-sensitivity").innerHTML = h;
+
+    // 7. Post-tax MOIC by horizon
+    const pt = computed.postTaxMOIC;
+    Charts.bar(
+      document.getElementById("chart-posttax"),
+      [
+        "Base 5",
+        "Bull 5",
+        "Bear 5",
+        "Base 7",
+        "Bull 7",
+        "Bear 7",
+        "Base 10",
+        "Bull 10",
+        "Bear 10",
+      ],
+      [
+        pt.base.yr5,
+        pt.bull.yr5,
+        pt.bear.yr5,
+        pt.base.yr7,
+        pt.bull.yr7,
+        pt.bear.yr7,
+        pt.base.yr10,
+        pt.bull.yr10,
+        pt.bear.yr10,
+      ],
+      [
+        Charts.colors.base,
+        Charts.colors.bull,
+        Charts.colors.bear,
+        Charts.colors.base,
+        Charts.colors.bull,
+        Charts.colors.bear,
+        Charts.colors.base,
+        Charts.colors.bull,
+        Charts.colors.bear,
+      ],
+      "Post-Tax MOIC",
+    );
+
+    // 8. Angel % of net worth over time
+    Charts.line(
+      document.getElementById("chart-angelpct"),
+      [
+        { name: "Angel %", data: nw.map((r) => r.angelPct * 100) },
+        { name: "Guardrail", data: nw.map(() => state.nw_guardrail * 100) },
+      ],
+      nw.map((r) => "Yr " + r.yr),
+      "Angel % of Net Worth",
+    );
+
+    // 9. P(Winner) by portfolio size
+    const t4 = s.t4;
+    Charts.line(
+      document.getElementById("chart-pwin"),
+      [
+        { name: "P(Winner)", data: t4.map((r) => r.pWin * 100) },
+        { name: "P(Home Run)", data: t4.map((r) => r.pHR * 100) },
+      ],
+      t4.map((r) => "" + r.n),
+      "Probability vs Portfolio Size",
+    );
   }
 
   function renderFloater() {
